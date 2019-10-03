@@ -1,6 +1,8 @@
 #define GLUT_DISABLE_ATEXIT_HACK
 #include <windows.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "quadTree.h"
 #include<GL/glut.h>
 #include <vector>
@@ -16,32 +18,36 @@ bool quadTree::isInBoundary(punto2d p){
 void quadTree::insertar(punto2d p){
 	if (!isInBoundary(p))
 		return;
-	if (depth()<MAXDEPTH&&!used&&puntos.size()<BUCKET)
+    if(depth>MAXDEPTH)
+        return;
+	if (!used&&puntos.size()<BUCKET)
         puntos.push_back(p);
 	else{
-        if (!cuadrantes[0]){
-            used=1;
-            punto2d int0=pm(p1,p2);
-            punto2d int1={int0.x,p1.y,0};
-            punto2d int2={p2.x,int0.y,0};
-            punto2d int3={p1.x,int0.y,0};
-            punto2d int4={int0.x,p2.y,0};
-            cuadrantes[0]=new quadTree;cuadrantes[0]->p1=p1;cuadrantes[0]->p2=int0;
-            cuadrantes[1]=new quadTree;cuadrantes[1]->p1=int1;cuadrantes[1]->p2=int2;
-            cuadrantes[2]=new quadTree;cuadrantes[2]->p1=int3;cuadrantes[2]->p2=int4;
-            cuadrantes[3]=new quadTree;cuadrantes[3]->p1=int0;cuadrantes[3]->p2=p2;
-            forp{
-                cuadrantes[0]->insertar(*it);
-                cuadrantes[1]->insertar(*it);
-                cuadrantes[2]->insertar(*it);
-                cuadrantes[3]->insertar(*it);
+        if(depth<MAXDEPTH){
+            if (!cuadrantes[0]){
+                used=1;
+                punto2d int0=pm(p1,p2);
+                punto2d int1={int0.x,p1.y,0};
+                punto2d int2={p2.x,int0.y,0};
+                punto2d int3={p1.x,int0.y,0};
+                punto2d int4={int0.x,p2.y,0};
+                cuadrantes[0]=new quadTree;cuadrantes[0]->p1=p1;cuadrantes[0]->p2=int0;cuadrantes[0]->depth=depth+1;
+                cuadrantes[1]=new quadTree;cuadrantes[1]->p1=int1;cuadrantes[1]->p2=int2;cuadrantes[1]->depth=depth+1;
+                cuadrantes[2]=new quadTree;cuadrantes[2]->p1=int3;cuadrantes[2]->p2=int4;cuadrantes[2]->depth=depth+1;
+                cuadrantes[3]=new quadTree;cuadrantes[3]->p1=int0;cuadrantes[3]->p2=p2;cuadrantes[3]->depth=depth+1;
+                forp{
+                    cuadrantes[0]->insertar(*it);
+                    cuadrantes[1]->insertar(*it);
+                    cuadrantes[2]->insertar(*it);
+                    cuadrantes[3]->insertar(*it);
+                }
+                puntos.clear();
             }
-            puntos.clear();
+            cuadrantes[0]->insertar(p);
+            cuadrantes[1]->insertar(p);
+            cuadrantes[2]->insertar(p);
+            cuadrantes[3]->insertar(p);
         }
-        cuadrantes[0]->insertar(p);
-        cuadrantes[1]->insertar(p);
-        cuadrantes[2]->insertar(p);
-        cuadrantes[3]->insertar(p);
 	}
 
 }
@@ -98,5 +104,23 @@ void quadTree::busqueda(int x0,int x1,int y0,int y1){
                 (*it).found=0;
         }
     }
+}
+
+void quadTree::leerArchivo(string arc){
+  string line;
+  ifstream myfile (arc);
+  int x,y;
+  if (myfile.is_open()){
+    while ( getline (myfile,line) ){
+      istringstream iss(line);
+      iss>>x>>y;
+      punto2d p={x,y,0};
+      insertar(p);
+    }
+    myfile.close();
+  }
+
+  else cout << "Unable to open file";
+
 }
 

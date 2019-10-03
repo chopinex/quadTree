@@ -14,19 +14,6 @@ using namespace std;
 	int nx,ny,cx,cy,dim=50;
     quadTree* qt;
     bool anticlic=0;
-//dibuja un simple gizmo
-void displayGizmo()
-{
-	glBegin(GL_LINES);
-	glColor3d(255,0,0);
-	glVertex2d(0, 0);
-	glVertex2d(300, 0);
-	glColor3d(0, 255, 0);
-	glVertex2d(0, 0);
-	glVertex2d(0, 100);
-	glEnd();
-}
-
 
 void OnMouseClick(int button, int state, int x, int y)
 {
@@ -139,6 +126,7 @@ int main(int argc, char** argv) {
     qt=new quadTree;
     qt->p1=pu1;
     qt->p2=pu2;
+    qt->leerArchivo("quad.txt");
 	//qt = new quadTree();
 	glutMainLoop(); //bucle de rendering
 	//no escribir nada abajo de mainloop
